@@ -1,0 +1,1 @@
+{"patience":100,"struct_type":"FairPC","split_depth":1,"pick_var":"vMI","struct_iters":1000,"fold":1,"save_step":1,"pseudocount":1.0,"pick_edge":"eFlow","debias":false,"exp-id":"2","dataset":"synthetic","para_iters":500,"num_X":10,"sensitive_variable":"S","seed":1337,"missing_perct":0.0,"dir":"exp/synthetic/2","init_para_alg":"prior-subop"}

@@ -7,8 +7,18 @@ using Random
 using Suppressor
 using LogicCircuits
 using ProbabilisticCircuits
-using LearnFairPSDD
+using LogicCircuits
+using ProbabilisticCircuits
+using DataFrames
 
+include("structures.jl")
+include("data.jl")
+include("logging.jl")
+
+include("parameters.jl")
+include("structure_inits.jl")
+include("predictions.jl")
+include("models.jl")
 
 function add_basic_arg(s::ArgParseSettings)
     @add_arg_table! s begin
@@ -79,6 +89,9 @@ function add_basic_arg(s::ArgParseSettings)
         "--missing_perct"
             arg_type = Float64
             default = 0.0
+        "--debias"
+            arg_type = Bool
+            default = false
         end
 end
 

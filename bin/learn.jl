@@ -25,6 +25,7 @@ function main()
 
     num_X = args["num_X"]
 
+    debias = args["debias"]
 
     # log config
     if !isdir(outdir)
@@ -42,7 +43,7 @@ function main()
     # flush(io)
 
     try
-        @suppress_out learn(name, SV;
+        learn(name, SV;
             outdir=outdir,
             save_step=save_step,
             seed=seed,
@@ -65,10 +66,13 @@ function main()
             pseudocount=pseudocount,
 
             # for synthetic data
-            num_X=num_X)
+            num_X=num_X, 
+            # for marginalizing on d
+            debias = debias)
 
     catch e
         @error "Error! Program terminated unexpectedly."
+        println(e)
         with_logger(SimpleLogger(stdout)) do
             @error "Error! Program terminated unexpectedly in args.\n" arg_str
         end
