@@ -9,7 +9,7 @@ from random import seed
 from data import *
 
 def main(name, fold, num_X=None, use_fair=False):
-    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy = load_data(name, fold, num_X=num_X, use_fair=use_fair)
+    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy , test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=use_fair)
     
     s_train = np.array(train_data[DATA2S[name]])
     s_test = np.array(test_data[DATA2S[name]])

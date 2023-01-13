@@ -11,7 +11,7 @@ from data import *
 
 def reduction(name, fold, num_X=0):
     # load data
-    train_data, test_data, cloumns, _, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy = load_data(name, fold, num_X=num_X, use_fair=False)
+    train_data, test_data, cloumns, _, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy , test_y_debias, train_y_debias= load_data(name, fold, num_X=num_X, use_fair=False)
 
     train_X = train_data.drop(columns=cloumns)
     train_y_true = train_data[DATA2D[name]]

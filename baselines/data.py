@@ -15,7 +15,11 @@ DATA2S = {'adult': 'sex',
 
 NAMES = ['adult', 'compas', 'german', 'synthetic']
 
-def load_data(name, fold, num_X=None, use_fair=False):
+def process_train(pred, threshold):
+    pred  = (pred[~np.isnan(pred)] > threshold).astype(int)
+    return pred
+
+def load_data(name, fold, num_X=None, use_fair=False, exp_num = None):
     if name == "synthetic":
         filename = '../data/synthetic_data/%s.csv' % num_X
         train_splits = '../data/splited_data/10-cv/synthetic/%s/train_ids.csv' % num_X
@@ -25,18 +29,27 @@ def load_data(name, fold, num_X=None, use_fair=False):
         filename = '../data/processed_data/%s_binerized.csv' % name
         train_splits = '../data/splited_data/10-cv/%s/train_ids.csv' % name
         test_splits = '../data/splited_data/10-cv/%s/test_ids.csv' % name
-    print(os.getcwd())
     train_id = np.array(pd.read_csv(train_splits)['x%s' % fold]) - 1
     test_id = np.array(pd.read_csv(test_splits)['x%s' % fold]) - 1
 
     train_id = train_id[~np.isnan(train_id)].astype(int)
     test_id = test_id[~np.isnan(test_id)].astype(int)
 
-    cloumns = [DATA2D[name], 'Df'] if name == "synthetic" else [DATA2D[name]]
-    decision_label = 'Df' if (use_fair and name =="synthetic") else DATA2D[name]
+    # read experiment specific paths
+    if exp_num is not None:
+        experiment_path =  os.path.join("..", "exp", name, exp_num, "para", "max-ll","predict-per-example-proxy-label.csv")
+        exp_config_path =  os.path.join("..", "exp", name, exp_num, "config.json")
+
+    cloumns = [DATA2D[name], 'Df']
+    decision_label = 'Df' if (use_fair) else DATA2D[name]
 
     train_data = pd.read_csv(filename).iloc[train_id, :]
     test_data = pd.read_csv(filename).iloc[test_id, :]
+
+    if use_fair:
+        fair_labels = pd.read_csv(experiment_path)
+        train_y_debias = process_train(fair_labels["P(Df|e) train_x"], 0.5)
+        test_y_debias = process_train(fair_labels["P(Df|e) test_x"], 0.5)
 
     if name == "synthetic":
         test_y_fair = np.array(test_data['Df'])
@@ -50,7 +63,7 @@ def load_data(name, fold, num_X=None, use_fair=False):
         train_y_proxy = np.array(train_data[DATA2D[name]])
 
 
-    return train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy
+    return train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy, test_y_debias, train_y_debias
 
 
 def read_cmd():

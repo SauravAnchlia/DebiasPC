@@ -67,7 +67,7 @@ def learning(X_train, y_train, X_test, y_test, protected_train, protected_test):
 
 
 def model(name, fold, num_X=None):
-    train_data, test_data, cloumns, learn_decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy = load_data(name, fold, num_X=num_X, use_fair=False)
+    train_data, test_data, cloumns, learn_decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy, test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=False)
 
     # load_data
     X_train = np.array(train_data.drop(columns=cloumns))
