@@ -31,12 +31,12 @@ def reduction(name, fold, num_X=0):
     s_train = train_sex.astype(bool)
     s_test = np.array(test_data[DATA2S[name]]).astype(bool)
 
-
+    print(accuracy(prob_test, test_y_proxy))
     save_file(name, num_X, fold, "Reduction", prob_train, s_train, train_y_fair, train_y_proxy, prob_test, s_test, test_y_fair, test_y_proxy)
 
 
 def main():
-    name, fold, num_X, _ = read_cmd()
+    name, fold, num_X, use_fair, exp_num= read_cmd()
     reduction(name, fold, num_X=num_X)
 
 

@@ -88,7 +88,7 @@ def model(name, fold, num_X=None):
 
 
 def main():
-    name, fold, num_X, _ = read_cmd()
+    name, fold, num_X, use_fair, exp_num = read_cmd()
     model(name, fold, num_X=num_X)
 
 

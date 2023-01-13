@@ -22,5 +22,5 @@ def main(name, fold, num_X=None, use_fair=False):
 
 
 if __name__ == "__main__":
-    name, fold, num_X, use_fair = read_cmd()
+    name, fold, num_X, use_fair, exp_num = read_cmd()
     main(name, fold, num_X, use_fair)
