@@ -25,7 +25,7 @@ def load_data(name, fold, num_X=None, use_fair=False):
         filename = '../data/processed_data/%s_binerized.csv' % name
         train_splits = '../data/splited_data/10-cv/%s/train_ids.csv' % name
         test_splits = '../data/splited_data/10-cv/%s/test_ids.csv' % name
-
+    print(os.getcwd())
     train_id = np.array(pd.read_csv(train_splits)['x%s' % fold]) - 1
     test_id = np.array(pd.read_csv(test_splits)['x%s' % fold]) - 1
 
@@ -59,12 +59,9 @@ def read_cmd():
     parser.add_argument("--num_X", help="Number of non sensitive variables for synthetic dataset", type=int, default=-1)
     parser.add_argument("--fold", help="Dataset split fold", type=int)
     parser.add_argument("--use_fair", help="Whether use fair label as decision label", type=bool, default=False)
+    parser.add_argument("--exp_num", help="Provide experiment number to source fair label data", type = int, default=False)
     args = parser.parse_args()
-    name = args.name
-    fold = args.fold
-    num_X = args.num_X
-    use_fair = args.use_fair
-    return name, fold, num_X, use_fair
+    return args.name, args.fold, args.num_X, args.use_fair, args.exp_num
 
 
 def save_file(name, num_X, fold, outdir, prob_train, s_train, train_y_fair, train_y_proxy, prob_test, s_test, test_y_fair, test_y_proxy):
