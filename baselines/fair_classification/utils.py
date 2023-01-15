@@ -1,10 +1,11 @@
 import numpy as np
 from random import seed, shuffle
-import loss_funcs as lf # our implementation of loss funcs
+import fair_classification.loss_funcs as lf # our implementation of loss funcs
 from scipy.optimize import minimize # for loss func minimization
 from multiprocessing import Pool, Process, Queue
 from collections import defaultdict
 from copy import deepcopy
+from fairlearn.metrics import equalized_odds_difference
 import matplotlib.pyplot as plt # for plotting stuff
 import sys
 
@@ -130,9 +131,9 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
     try:
         assert(w.success == True)
     except:
-        print "Optimization problem did not converge.. Check the solution returned by the optimizer."
-        print "Returned solution is:"
-        print w
+        print ("Optimization problem did not converge.. Check the solution returned by the optimizer.")
+        print ("Returned solution is:")
+        print (w)
 
 
 
@@ -238,11 +239,11 @@ def print_classifier_fairness_stats(acc_arr, correlation_dict_arr, cov_dict_arr,
     prot_pos = correlation_dict[s_attr_name][0][1]
     p_rule = (prot_pos / non_prot_pos) * 100.0
     
-    print "Accuracy: %0.2f" % (np.mean(acc_arr))
-    print "Protected/non-protected in +ve class: %0.0f%% / %0.0f%%" % (prot_pos, non_prot_pos)
-    print "P-rule achieved: %0.0f%%" % (p_rule)
-    print "Covariance between sensitive feature and decision from distance boundary : %0.3f" % (np.mean([v[s_attr_name] for v in cov_dict_arr]))
-    print
+    print ("Accuracy: %0.2f" % (np.mean(acc_arr)))
+    print ("Protected/non-protected in +ve class: %0.0f%% / %0.0f%%" % (prot_pos, non_prot_pos))
+    print ("P-rule achieved: %0.0f%%" % (p_rule))
+    print( "Covariance between sensitive feature and decision from distance boundary : %0.3f" % (np.mean([v[s_attr_name] for v in cov_dict_arr])))
+    print ("\n")
     return p_rule
 
 def compute_p_rule(x_control, class_labels):
@@ -256,13 +257,13 @@ def compute_p_rule(x_control, class_labels):
     frac_non_prot_pos = float(non_prot_pos) / float(non_prot_all)
     frac_prot_pos = float(prot_pos) / float(prot_all)
     p_rule = (frac_prot_pos / frac_non_prot_pos) * 100.0
-    print
-    print "Total data points: %d" % (len(x_control))
-    print "# non-protected examples: %d" % (non_prot_all)
-    print "# protected examples: %d" % (prot_all)
-    print "Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, non_prot_pos * 100.0 / non_prot_all)
-    print "Protected in positive class: %d (%0.0f%%)" % (prot_pos, prot_pos * 100.0 / prot_all)
-    print "P-rule is: %0.0f%%" % ( p_rule )
+    print ("\n")
+    print ("Total data points: %d" % (len(x_control)))
+    print ("# non-protected examples: %d" % (non_prot_all))
+    print ("# protected examples: %d" % (prot_all))
+    print ("Non-protected in positive class: %d (%0.0f%%)" % (non_prot_pos, non_prot_pos * 100.0 / non_prot_all))
+    print ("Protected in positive class: %d (%0.0f%%)" % (prot_pos, prot_pos * 100.0 / prot_all))
+    print ("P-rule is: %0.0f%%" % ( p_rule ))
     return p_rule
 
 
@@ -292,8 +293,8 @@ def get_one_hot_encoding(in_arr):
 
     for k in in_arr:
         if str(type(k)) != "<type 'numpy.float64'>" and type(k) != int and type(k) != np.int64:
-            print str(type(k))
-            print "************* ERROR: Input arr does not have integer types"
+            print (str(type(k)))
+            print ("************* ERROR: Input arr does not have integer types")
             return None
         
     in_arr = np.array(in_arr, dtype=int)
@@ -328,7 +329,7 @@ def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y
     else we pass y_predicted
     """
     if model is not None and y_test_predicted is not None:
-        print "Either the model (w) or the predicted labels should be None"
+        print ("Either the model (w) or the predicted labels should be None")
         raise Exception("Either the model (w) or the predicted labels should be None")
 
     if model is not None:
@@ -382,9 +383,8 @@ def test_sensitive_attr_constraint_cov(model, x_arr, y_arr_dist_boundary, x_cont
     ans = thresh - abs(cov) # will be <0 if the covariance is greater than thresh -- that is, the condition is not satisfied
     # ans = thresh - cov # will be <0 if the covariance is greater than thresh -- that is, the condition is not satisfied
     if verbose is True:
-        print "Covariance is", cov
-        print "Diff is:", ans
-        print
+        print ("Covariance is", cov)
+        print ("Diff is:", ans)
     return ans
 
 def print_covariance_sensitive_attrs(model, x_arr, y_arr_dist_boundary, x_control, sensitive_attrs):
@@ -585,7 +585,7 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
     test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_function, 0, apply_accuracy_constraint, sep_constraint, sensitive_attrs, [{} for i in range(0,num_folds)], 0)
 
     for c in cov_range:
-        print "LOG: testing for multiplicative factor: %0.2f" % c
+        print ("LOG: testing for multiplicative factor: %0.2f" % c)
         sensitive_attrs_to_cov_original_arr_multiplied = []
         for sensitive_attrs_to_cov_original in cov_dict_train_arr:
             sensitive_attrs_to_cov_thresh = deepcopy(sensitive_attrs_to_cov_original)
@@ -640,7 +640,26 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.5)
     plt.show()
 
+def get_equalized_odds_difference(y_true, y_pred, sv):
+    return equalized_odds_difference(y_true, y_pred, sensitive_features=sv)
 
+def calculate_equal_opportunity(y_true, y_pred, sv):
+    s_zero = 0
+    s_one = 0
+    pred_zero = 0
+    pred_one = 0
+    for yt, yp, s in zip(y_true, y_pred, sv):
+        if yt == 1 and s == 0 and yp == 1:
+            pred_zero += 1
+        elif yt == 1 and s == 1 and yp == 1:
+            pred_one += 1
+        if s == 0 and yp == 1:
+            s_zero += 1
+        elif s == 1 and yp == 1:
+            s_one += 1
+        
+
+    return (pred_zero/s_zero), (pred_one/s_one), abs((pred_zero/s_zero) - (pred_one/s_one))
 def get_line_coordinates(w, x1, x2):
     y1 = (-w[0] - (w[1] * x1)) / w[2]
     y2 = (-w[0] - (w[1] * x2)) / w[2]    

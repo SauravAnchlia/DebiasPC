@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 sys.path.insert(0, './fair_classification/') # the code for fair classification is in this directory
 import utils as ut
-import loss_funcs as lf # loss funcs that can be optimized subject to various constraints
+import fair_classification.loss_funcs as lf # loss funcs that can be optimized subject to various constraints
 import math
 from data import *
 
@@ -37,13 +37,20 @@ def model(x_train, y_train, x_control_train, x_test, y_test, x_control_test, SV)
     return train_test_classifier()
 
 
-def main(name, fold, num_X=None, use_fair=False):
+def main(name, fold, num_X=None, use_fair=False, exp_num = None):
 
-    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy , test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=use_fair)
-
+    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy , test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=use_fair, exp_num=exp_num)
+    print(type(use_fair))
+    print(use_fair)
     cloumns.append(DATA2S[name])
     x_train = np.array(train_data.drop(columns=cloumns))
-    y_train = np.array(train_data[decision_label])
+    y_train = None
+    if use_fair and name != "synthetic":
+        y_train = np.array(train_y_fair)
+    elif name == "synthetic" and use_fair:
+        y_train = np.array(train_y_debias)
+    else:
+        y_train = np.array(train_data[decision_label])
     y_train = np.array([-1 if y == 0 else 1 for y in y_train])
     S_train = np.array(train_data[DATA2S[name]])
     SV = DATA2S[name]
@@ -51,7 +58,13 @@ def main(name, fold, num_X=None, use_fair=False):
 
 
     x_test = np.array(test_data.drop(columns=cloumns))
-    y_test = np.array(test_data[decision_label])
+    if use_fair and name != "synthetic":
+        print("using fair labels")
+        y_test = np.array(test_y_fair)
+    elif name == "synthetic" and use_fair:
+        y_test = np.array(test_y_debias)
+    else:
+        y_test = np.array(test_data[decision_label])
     y_test = np.array([-1 if y == 0 else 1 for y in y_test])
     S_test = np.array(test_data[DATA2S[name]])
     x_control_test = {SV: S_test}
@@ -63,4 +76,5 @@ def main(name, fold, num_X=None, use_fair=False):
 
 if __name__ == "__main__":
     name, fold, num_X, use_fair, exp_num= read_cmd()
-    main(name, fold, num_X, use_fair)
+    print(f"{type(use_fair)=} and {use_fair=}")
+    main(name, fold, num_X, use_fair, exp_num)

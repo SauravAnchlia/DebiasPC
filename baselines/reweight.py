@@ -66,14 +66,28 @@ def learning(X_train, y_train, X_test, y_test, protected_train, protected_test):
         return prob_train, prob_test
 
 
-def model(name, fold, num_X=None):
-    train_data, test_data, cloumns, learn_decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy, test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=False)
+def model(name, fold, num_X=None, use_fair = False, exp_num = None):
+    train_data, test_data, cloumns, learn_decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy, test_y_debias, train_y_debias = load_data(name, fold, num_X=num_X, use_fair=use_fair, exp_num = exp_num)
 
     # load_data
     X_train = np.array(train_data.drop(columns=cloumns))
-    y_train = np.array(train_data[learn_decision_label])
+    y_train = None
+    if use_fair and name != "synthetic":
+        y_train = np.array(train_y_fair)
+    elif name == "synthetic" and use_fair:
+        y_train = np.array(train_y_debias)
+    else:
+        y_train = np.array(train_data[learn_decision_label])
+    # y_train = np.array(train_data[learn_decision_label])
     X_test = np.array(test_data.drop(columns=cloumns))
-    y_test = np.array(test_data[learn_decision_label])
+    y_test = None
+    if learn_decision_label and name != "synthetic":
+        y_test = test_y_fair
+    elif name == "synthetic" and use_fair:
+        y_test = test_y_debias
+    else:
+        y_test = test_data[learn_decision_label]
+    # y_test = np.array(test_data[learn_decision_label])
     
     s_train = np.array(train_data[DATA2S[name]])
     protected_train = [s_train]
@@ -89,7 +103,7 @@ def model(name, fold, num_X=None):
 
 def main():
     name, fold, num_X, use_fair, exp_num = read_cmd()
-    model(name, fold, num_X=num_X)
+    model(name, fold, num_X=num_X, use_fair = use_fair, exp_num = exp_num)
 
 
 if __name__ == "__main__":
