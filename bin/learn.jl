@@ -25,6 +25,7 @@ function main()
 
     num_X = args["num_X"]
 
+    debias = args["debias"]
 
     # log config
     if !isdir(outdir)
@@ -65,7 +66,9 @@ function main()
             pseudocount=pseudocount,
 
             # for synthetic data
-            num_X=num_X)
+            num_X=num_X,
+            # for debias data
+            debias = debias)
 
     catch e
         @error "Error! Program terminated unexpectedly."

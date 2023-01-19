@@ -79,6 +79,9 @@ function add_basic_arg(s::ArgParseSettings)
         "--missing_perct"
             arg_type = Float64
             default = 0.0
+        "--debias"
+            arg_type = Bool
+            default = false
         end
 end
 

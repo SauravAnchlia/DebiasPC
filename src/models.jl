@@ -12,6 +12,7 @@ function model_fair_psdd(::Type{FairPC}, train_x::FairDataset, valid_x::FairData
                             init_para_alg,
                             para_iters,
                             pseudocount,
+                            debias,
                             log_opts)
     dir = log_opts["outdir"]
     # struct learn
@@ -29,7 +30,7 @@ function model_fair_psdd(::Type{FairPC}, train_x::FairDataset, valid_x::FairData
         split_depth=split_depth,
         log_opts=log_opts1)
     
-    predict_all_circuits(NlatPC, nlat_result_circuits, log_opts1, train_x1, valid_x1, test_x1)
+    predict_all_circuits(NlatPC, nlat_result_circuits, log_opts1, train_x1, valid_x1, test_x1, debias)
        
 
     # parameter learning
@@ -46,7 +47,7 @@ function model_fair_psdd(::Type{FairPC}, train_x::FairDataset, valid_x::FairData
                             pseudocount=pseudocount,
                             init_para_alg="void",
                             log_opts=log_opts2)
-    predict_all_circuits(FairPC, result_circuits, log_opts2, train_x, valid_x, test_x)
+    predict_all_circuits(FairPC, result_circuits, log_opts2, train_x, valid_x, test_x, debias)
 
        
     return result_circuits, results
@@ -59,6 +60,7 @@ function model_fair_psdd(T::Type{<:Union{LatNB, TwoNB}}, train_x::FairDataset, v
             init_para_alg,
             para_iters,
             pseudocount,
+            debias,
             log_opts)
 
     pc = initial_structure(T, train_x; pseudocount=pseudocount)
@@ -172,7 +174,9 @@ function learn(name, SV;
                 pseudocount=1.0,
 
                 # for synthetic data
-                num_X=nothing)
+                num_X=nothing, 
+                # for debias data 
+                debias = false)
     # output dir
     if !isdir(outdir)
         mkpath(outdir)
@@ -195,6 +199,7 @@ function learn(name, SV;
                         init_para_alg=init_para_alg,
                         para_iters=para_iters,
                         pseudocount=pseudocount,
+                        debias = debias,
                         log_opts=Dict("outdir"=>outdir,
                                         "save"=>save_step,
                                         "patience"=>patience,
