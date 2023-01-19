@@ -99,6 +99,7 @@ def model(name, fold, num_X=None, use_fair = False, exp_num = None):
     prob_train, prob_test = learning(X_train, y_train, X_test, y_test, protected_train, protected_test)
     #print(1 - accuracy(prob, true_y_proxy))
     save_file(name, num_X, fold, "Reweight", prob_train, s_train, train_y_fair, train_y_proxy, prob_test, s_test, test_y_fair, test_y_proxy)
+    return prob_train, prob_test
 
 
 def main():
