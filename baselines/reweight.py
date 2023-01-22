@@ -64,8 +64,8 @@ def learning(X_train, y_train, X_test, y_test, protected_train, protected_test):
         print()
         print()
         res = {}
-        res["prob_train"] = prob_train
-        res["prob_test"] = prob_test
+        res["prob_train"] = y_pred_train
+        res["prob_test"] = y_pred_test
         res["train_acc"] = train_acc
         res["train_violations"] = max(np.abs(train_violations))
         res["train_all_violations"] = train_violations
