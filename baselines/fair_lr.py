@@ -33,13 +33,23 @@ def model(x_train, y_train, x_control_train, x_test, y_test, x_control_test, SV)
         cov_dict_test = ut.print_covariance_sensitive_attrs(None, x_test, distances_boundary_test, x_control_test, sensitive_attrs)
         p_rule = ut.print_classifier_fairness_stats([test_score], [correlation_dict_test], [cov_dict_test], sensitive_attrs[0])	
         # return w, p_rule, test_score
-        return prob_train, prob_test
+        res = {}
+        res["prob_train"] = np.array(prob_train)
+        res["prob_test"] = np.array(prob_test)
+        res["accuracy_flr"] = test_score
+        res["correlation_dict"] = correlation_dict_test
+        res["not_prot_pos"] = correlation_dict_test[sensitive_attrs[0]][1][1]
+        res["prot_pos"] = correlation_dict_test[sensitive_attrs[0]][0][1]
+        res["p_rule"] = (correlation_dict_test[sensitive_attrs[0]][1][1]/correlation_dict_test[sensitive_attrs[0]][0][1]) * 100
+        # res["cov_between_sensitive_decision_boundary"] = (np.mean([v[sensitive_attrs[0]] for v in correlation_dict_test]))
+        print(type(res))
+        return prob_train, prob_test, res
     return train_test_classifier()
 
 
-def main(name, fold, num_X=None, use_fair=False):
+def main(name, fold, num_X=None, use_fair=False, exp_num = None):
 
-    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy = load_data(name, fold, num_X=num_X, use_fair=use_fair)
+    train_data, test_data, cloumns, decision_label, train_y_fair, train_y_proxy, test_y_fair, test_y_proxy = load_data(name, fold, num_X=num_X, use_fair=use_fair, exp_num=exp_num)
 
     cloumns.append(DATA2S[name])
     x_train = np.array(train_data.drop(columns=cloumns))
@@ -56,11 +66,12 @@ def main(name, fold, num_X=None, use_fair=False):
     S_test = np.array(test_data[DATA2S[name]])
     x_control_test = {SV: S_test}
 
-    prob_train, prob_test = model(x_train, y_train, x_control_train, x_test, y_test, x_control_test, SV)
-
+    prob_train, prob_test, res = model(x_train, y_train, x_control_train, x_test, y_test, x_control_test, SV)
+    print(type(res))
     save_file(name, num_X, fold, "LR", np.array(prob_train), S_train, train_y_fair, train_y_proxy, np.array(prob_test), S_test, test_y_fair, test_y_proxy)
+    return res
 
 
 if __name__ == "__main__":
-    name, fold, num_X, use_fair = read_cmd()
-    main(name, fold, num_X, use_fair)
+    name, fold, num_X, use_fair, exp_num = read_cmd()
+    main(name, fold, num_X, use_fair, exp_num)
