@@ -1,0 +1,2 @@
+,accuracy,precision,f1_score,recall,Overall selection rate,Demographic parity difference,Demographic parity ratio,False positive rate difference,Equalized odds difference,False negative rate difference
+0,0.65,0.6477272727272727,0.7651006711409395,0.9344262295081968,0.88,0.06746031746031744,0.9273504273504274,0.15909090909090906,0.15909090909090906,0.009358288770053472
